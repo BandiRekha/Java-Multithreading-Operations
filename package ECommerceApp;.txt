@@ -1,0 +1,185 @@
+package ECommerceApp;
+
+import javax.swing.*;
+import java.awt.*;
+
+public class EcommerceAppSwing {
+
+    static String[] categories = {
+            "Electronics", "Fashion", "Books", "Sports", "Home Essentials"
+    };
+
+    static String[][] subCategories = {
+            {"Mobiles", "Laptops", "Accessories", "Wearables"},
+            {"Men", "Women", "Kids", "Footwear"},
+            {"Fiction", "Non-Fiction", "Academic", "Comics"},
+            {"Indoor", "Outdoor", "Fitness", "Accessories"},
+            {"Kitchen", "Furniture", "Decor", "Cleaning"}
+    };
+
+    static String[] cartItems = new String[20];
+    static double[] cartPrices = new double[20];
+    static int cartCount = 0;
+
+    public static void main(String[] args) {
+
+        JFrame frame = new JFrame("E-Commerce Application");
+        frame.setSize(400, 500);
+        frame.setLayout(new GridLayout(0, 1));
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        JLabel title = new JLabel("🛒 E-Commerce App", JLabel.CENTER);
+        title.setFont(new Font("Arial", Font.BOLD, 20));
+        frame.add(title);
+
+        // Category Buttons
+        for (int i = 0; i < categories.length; i++) {
+            int catIndex = i;
+            JButton btn = new JButton(categories[i]);
+            btn.addActionListener(e -> openCategory(catIndex));
+            frame.add(btn);
+        }
+
+        JButton checkoutBtn = new JButton("Checkout");
+        checkoutBtn.addActionListener(e -> checkout());
+        frame.add(checkoutBtn);
+
+        JButton exitBtn = new JButton("Exit");
+        exitBtn.addActionListener(e -> System.exit(0));
+        frame.add(exitBtn);
+
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+    }
+
+    static void openCategory(int catIndex) {
+
+        String sub = (String) JOptionPane.showInputDialog(
+                null,
+                "Select Subcategory",
+                categories[catIndex],
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                subCategories[catIndex],
+                subCategories[catIndex][0]
+        );
+
+        if (sub == null) return;
+
+        String[] productNames = new String[10];
+        double[] productPrices = new double[10];
+
+        for (int i = 0; i < 10; i++) {
+            productNames[i] = sub + " Product " + (i + 1);
+            productPrices[i] = 500 + (i * 150);
+        }
+
+        StringBuilder products = new StringBuilder();
+        for (int i = 0; i < 10; i++) {
+            products.append(i + 1)
+                    .append(". ")
+                    .append(productNames[i])
+                    .append(" - ₹")
+                    .append(productPrices[i])
+                    .append("\n");
+        }
+
+        String pid = JOptionPane.showInputDialog(
+                null,
+                products + "\nEnter Product ID:"
+        );
+
+        if (pid == null) return;
+
+        int p = Integer.parseInt(pid) - 1;
+
+        String[] options = {"Add to Cart", "Buy Now"};
+        int choice = JOptionPane.showOptionDialog(
+                null,
+                productNames[p] + "\nPrice: ₹" + productPrices[p],
+                "Purchase Option",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.INFORMATION_MESSAGE,
+                null,
+                options,
+                options[0]
+        );
+
+        if (choice == 0) {
+            cartItems[cartCount] = productNames[p];
+            cartPrices[cartCount] = productPrices[p];
+            cartCount++;
+            JOptionPane.showMessageDialog(null, "Item added to cart ✅");
+        } else if (choice == 1) {
+            payment(productNames[p], productPrices[p]);
+        }
+    }
+
+    static void checkout() {
+
+        if (cartCount == 0) {
+            JOptionPane.showMessageDialog(null, "Cart is Empty ❌");
+            return;
+        }
+
+        double total = 0;
+        StringBuilder cart = new StringBuilder("🛍 CART ITEMS\n\n");
+
+        for (int i = 0; i < cartCount; i++) {
+            cart.append(i + 1)
+                .append(". ")
+                .append(cartItems[i])
+                .append(" - ₹")
+                .append(cartPrices[i])
+                .append("\n");
+            total += cartPrices[i];
+        }
+
+        cart.append("\nTotal Amount: ₹").append(total);
+
+        JOptionPane.showMessageDialog(null, cart.toString());
+        payment("Cart Items", total);
+        cartCount = 0;
+    }
+
+    static void payment(String itemName, double amount) {
+
+        String[] payOptions = {"UPI", "Credit Card"};
+        int pay = JOptionPane.showOptionDialog(
+                null,
+                "Select Payment Method",
+                "Payment",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.INFORMATION_MESSAGE,
+                null,
+                payOptions,
+                payOptions[0]
+        );
+
+        String mode;
+        if (pay == 0) {
+            mode = "UPI";
+            JOptionPane.showInputDialog("Enter UPI ID:");
+        } else {
+            mode = "Credit Card";
+            JOptionPane.showInputDialog("Enter Card Number:");
+        }
+
+        JOptionPane.showMessageDialog(null,
+                "Payment Successful ✅\nOrder Placed 🎉");
+
+        printReceipt(itemName, amount, mode);
+    }
+
+    static void printReceipt(String item, double amount, String mode) {
+
+        JOptionPane.showMessageDialog(null,
+                "========== RECEIPT ==========\n" +
+                "Item      : " + item + "\n" +
+                "Amount    : ₹" + amount + "\n" +
+                "Payment   : " + mode + "\n" +
+                "Receipt # : REC" + (int)(Math.random() * 10000) + "\n" +
+                "Status    : SUCCESS\n" +
+                "=============================");
+    }
+}
